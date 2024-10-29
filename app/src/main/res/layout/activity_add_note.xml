@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Note"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/noteTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter the title of the note"
+        android:layout_below="@id/titleText"
+        android:layout_marginTop="4dp"
+        android:textSize="18sp"
+        android:background="@color/cardview_dark_background"
+        android:maxLines="1"/>
+
+    <EditText
+        android:id="@+id/noteContent"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+    android:hint="Enter the description"
+    android:gravity="top"
+    android:padding="12dp"
+    android:textSize="18sp"
+    android:background="@color/cardview_dark_background"
+    android:layout_below="@id/noteTitle"
+    android:layout_marginTop="16dp"/>
+
+    <ImageButton
+        android:id="@+id/saveNoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_add_24"
+        android:contentDescription="Add Note"
+        android:layout_below="@id/noteContent"
+        android:layout_marginTop="10dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>
+
+
