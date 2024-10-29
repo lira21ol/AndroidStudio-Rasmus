@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +30,7 @@ import java.util.UUID
 data class Note(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
-    val text: int,
+    val text: String
 )
 
 class MainActivity : ComponentActivity() {
@@ -49,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(Notes = Noteslist)
+                    MainScreen(notes = notelist)
                 }
             }
         }
@@ -57,28 +55,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(list: MutableList<Note<Any?>>, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        NoteInputView(notes = notes)
-        NoteListView(notes = notes)
+fun MainScreen(notes: MutableList<Note>, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize()) {
+        NoteInputView(notes = notes)  // Pass notes correctly
+        NoteListView(notes = notes)    // Pass notes correctly
     }
 }
 
 @Composable
-fun NoteInputView(notes: MutableList<Note<Any?>>) {
+fun NoteInputView(notes: MutableList<Note>) {
     var title by rememberSaveable { mutableStateOf("") }
     var text by rememberSaveable { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("")}
+    var errorMessage by remember { mutableStateOf("") }
 
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        OutlinedTextField(value = title, onValueChange = {
-            title = it
-        })
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                placeholder = { Text("Title") }  // Optional: Add placeholder for title
+            )
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -97,13 +95,16 @@ fun NoteInputView(notes: MutableList<Note<Any?>>) {
                 Text("Add")
             }
         }
-    if (errorMessage.isNotEmpty()) {
-        Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+
+        if (errorMessage.isNotEmpty()) {
+            Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+        }
     }
 }
 
+
 @Composable
-fun NoteListView(notes: List<Note<Any?>>) {
+fun NoteListView(notes: MutableList<Note>) {
     LazyColumn {
         items(notes) { note ->
             RowView(note = note, onDelete = { notes.remove(note) })
@@ -111,16 +112,13 @@ fun NoteListView(notes: List<Note<Any?>>) {
     }
 }
 
+
 @Composable
-fun RowView(note: Note<Any?>, onDelete: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+
+fun RowView(note: Note, onDelete: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(note.title, modifier = Modifier.weight(1f))
-        Button(onClick = onDelete) {
-            Text("Delete")
-        }
+        Button(onClick = onDelete) { Text("Delete") }
     }
 }
 fun validateTitle(title: String): Boolean {
@@ -135,6 +133,8 @@ fun validateText(text: String): Boolean {
 @Composable
 fun RowViewPreview() {
     TodoDemoTheme {
-        RowView(note = Note(title = "Note", text = "This is a note"))
+        RowView(note = Note(title = "Note", text = "This is a note"), onDelete = {})
     }
 }
+
+
