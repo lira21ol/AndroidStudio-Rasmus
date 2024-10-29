@@ -29,18 +29,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import io.garrit.android.demo.tododemo.ui.theme.TodoDemoTheme
 import java.util.UUID
 
-data class Task(
+data class Note(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
-    var isChecked: MutableState<Boolean> = mutableStateOf(false)
+    val text: int,
 )
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val list = remember {
-                mutableStateListOf(Task(title = "Hello"), Task(title = "World"))
+            val notelist = remember {
+                mutableStateListOf<Note>()
             }
 
             TodoDemoTheme {
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(list = list)
+                    MainScreen(Notes = Noteslist)
                 }
             }
         }
@@ -57,67 +57,84 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(list: MutableList<Task>, modifier: Modifier = Modifier) {
+fun MainScreen(list: MutableList<Note<Any?>>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        TextInputView(list = list)
-        ListView(list = list)
+        NoteInputView(notes = notes)
+        NoteListView(notes = notes)
     }
 }
 
 @Composable
-fun TextInputView(list: MutableList<Task>) {
-    var text by rememberSaveable {
-        mutableStateOf("")
-    }
+fun NoteInputView(notes: MutableList<Note<Any?>>) {
+    var title by rememberSaveable { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("")}
 
-    Row(
+        Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        OutlinedTextField(value = text, onValueChange = {
-            text = it
+        OutlinedTextField(value = title, onValueChange = {
+            title = it
         })
-        Button(onClick = { 
-            list.add(Task(title = text))
-            text = ""
-        }) {
-            Text("Add")
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                placeholder = { Text("Text") }
+            )
+            Button(onClick = {
+                if (validateTitle(title) && validateText(text)) {
+                    notes.add(Note(title = title, text = text))
+                    title = ""
+                    text = ""
+                    errorMessage = ""
+                } else {
+                    errorMessage = "Title must be 3-50 characters and text must be 120 characters max."
+                }
+            }) {
+                Text("Add")
+            }
         }
+    if (errorMessage.isNotEmpty()) {
+        Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
     }
 }
 
 @Composable
-fun ListView(list: List<Task>) {
+fun NoteListView(notes: List<Note<Any?>>) {
     LazyColumn {
-        items(list) { task ->
-            RowView(task)
+        items(notes) { note ->
+            RowView(note = note, onDelete = { notes.remove(note) })
         }
     }
 }
 
 @Composable
-fun RowView(task: Task) {
+fun RowView(note: Note<Any?>, onDelete: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = task.isChecked.value,
-            onCheckedChange = {
-                task.isChecked.value = !task.isChecked.value
-            }
-        )
-        Text(task.title)
+        Text(note.title, modifier = Modifier.weight(1f))
+        Button(onClick = onDelete) {
+            Text("Delete")
+        }
     }
+}
+fun validateTitle(title: String): Boolean {
+    return title.length in 3..50
+}
+
+fun validateText(text: String): Boolean {
+    return text.length <= 120
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RowViewPreview() {
     TodoDemoTheme {
-        RowView(Task(title = "Hello"))
+        RowView(note = Note(title = "Note", text = "This is a note"))
     }
 }
